@@ -1,0 +1,37 @@
+<resources>
+    <string name="app_name">GamesP</string>
+    <string name="action_settings">Connect</string>
+    <string name="section_format">Section: %1$d</string>
+    <string name="state_label">STATE:</string>
+    <string name="position_label">POSITION: </string>
+    <string name="id_label">ID:</string>
+    <string name="commands_label">COMMANDS</string>
+    <string name="enter_commands_and_send">Enter commands and Send</string>
+    <string name="command_forward">F</string>
+    <string name="command_left">L</string>
+    <string name="command_send">S</string>
+    <string name="command_right">R</string>
+    <string name="command_back">B</string>
+    <string name="command_connect">Connect</string>
+    <string name="state_default">not connected yet</string>
+    <string name="connect_Button">Connect with Robota</string>
+    <string name="title_activity_main2">Main2Activity</string>
+    <string name="title_activity_loading">Loading</string>
+    <string name="title_activity_welcome">Welcome</string>
+    <string name="title_activity_select">Select</string>
+    <string name="title_activity_1_1_select">Easy</string>
+    <string name="title_activity_1_2_select">Medium</string>
+    <string name="title_activity_1_3_select">Advanced</string>
+    <string name="level1_1">Unit 1 - Easy level</string>
+    <string name="level1_2">Unit 1 - Medium level</string>
+    <string name="level1_3">Unit 1 - Advanced level</string>
+    <string name="bot_name">Robot name: </string>
+    <string name="title_activity_unit1">unit1</string>
+    <string name="level8_1">Unit 8 - Easy level</string>
+    <string name="level8_2">Unit 8 - Medium level</string>
+    <string name="level8_3">Unit 8 - Advanced level</string>
+    <string name="title_activity_8_1_select">Easy</string>
+    <string name="title_activity_8_2_select">Medium</string>
+    <string name="title_activity_8_3_select">Advanced</string>
+
+</resources>
