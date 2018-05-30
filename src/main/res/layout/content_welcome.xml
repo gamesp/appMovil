@@ -1,55 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.gamesp.gamesp.Welcome"
-    android:background="@drawable/app_fondo"
-    tools:showIn="@layout/activity_welcome">
+    android:background="@color/colorPrimaryDark"
+    tools:context="com.gamesp.gamesp.Welcome">
 
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/imageView2"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="27dp"
-        android:lineSpacingExtra="12sp"
-        android:onClick="start"
-        android:padding="@dimen/appbar_padding_top"
-        android:text="Start"
-        android:textAlignment="center"
-        android:textColor="#4F9CA5"
-        android:textSize="36sp"
-        android:textStyle="bold" />
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp" >
+        <ImageView
+            android:layout_marginTop="100dp"
+            android:id="@+id/imageView9"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/appgamesp_logosinicio" />
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/button2"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="12dp"
-        app:srcCompat="@drawable/botones" />
+        <TextView
+            android:layout_alignParentBottom="true"
+            android:id="@+id/textView9"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:alpha="0.5"
+            android:text="@string/intro"
+            android:textAlignment="center"
+            android:textColor="#EEE"/>
 
-    <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="wrap_content"
-        android:layout_height="25dp"
-        android:layout_alignLeft="@+id/imageView"
-        android:layout_alignParentBottom="true"
-        android:layout_alignStart="@+id/imageView"
-        app:srcCompat="@drawable/euro" />
+    </RelativeLayout>
 
-    <ImageView
-        android:id="@+id/imageView5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/imageView"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="35dp"
-        app:srcCompat="@drawable/gamesp" />
-
-</RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>

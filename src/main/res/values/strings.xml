@@ -33,5 +33,28 @@
     <string name="title_activity_8_1_select">Easy</string>
     <string name="title_activity_8_2_select">Medium</string>
     <string name="title_activity_8_3_select">Advanced</string>
+    <string name="intro">MOBILE APP TO INTERACT WITH PHYSICAL ROBOTS FOR INTELLECTUALLY HANDICAPPED PEOPLE</string>
+    <string name="info_text_1">The principal objective of the project is to develop an online platform to interact with physical robots or in a virtual community, to implement with them specific teaching units for adults with disabilities. This goal leads offering this group the ability to access a normal activity, such as playing with robots. With this in mind it aims to help to promote the inclusion of disabled people. For this purpose, the consortium counts with experts on this target group.</string>
+    <string name="info_text_2">Involve parents in teaching/learning activities to enhance the bond parent – child and strengthen their relationship is also a project purpose. The fact that there is a virtual community also allows playing in pairs. For this reason, physically separated adults could also play in a jointly way.</string>
+    <string name="info">About the project</string>
+    <string name="map">Map</string>
+    <string name="wifi">Wifi Configuration</string>
+    <string name="update">Update</string>
+    <string name="dificult_1">Easy</string>
+    <string name="dificult_2">Medium</string>
+    <string name="dificult_3">Advanced</string>
+    <string name="title_activity_principal2">Principal2</string>string>
+    <string name="unit_1_title">Who am I?</string>
+    <string name="unit_2_title">Daily</string>
+    <string name="unit_3_title">City</string>
+    <string name="unit_4_title">Hobbies</string>
+    <string name="unit_5_title">Music</string>
+    <string name="unit_6_title">Shopping</string>
+    <string name="unit_7_title">Social skills</string>
+    <string name="unit_8_title">Sports</string>
+    <string name="unit_9_title">Kitchen</string>
+    <string name="unit_10_title">Job</string>
+    <string name="unit_0_title">Free Mode</string>
+    <string name="title_activity_info">Free Mode</string>
 
 </resources>

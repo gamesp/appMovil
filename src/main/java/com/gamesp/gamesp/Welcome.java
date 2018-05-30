@@ -1,15 +1,27 @@
 package com.gamesp.gamesp;
 
+import android.Manifest;
+import android.app.ActivityManager;
+import android.app.Application;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Toast;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft_17;
@@ -20,134 +32,268 @@ import org.json.JSONObject;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class Welcome extends AppCompatActivity {
 
-    private WebSocketClient mWebSocketClient = null;
+    List<String> names;
+    final Wifis wifis = new Wifis();
+    boolean seguir = true;
+    boolean buscando = false;
+    public String networkName = "";
+    public boolean wifiOk = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_welcome);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        //abrirSelect();
+        ((Globals) getApplication()).currentContext=this;
+
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            Log.i("----->", "No tiene permisos");
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    1);
+        } else {
+            wifis.start(this);
+            getWifis();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((Globals) getApplication()).currentContext=this;
+        if (!seguir) {
+            salir();
+        }
 
     }
 
-
-    public void abrirSelect(){
-        Intent intent = new Intent(this, Select.class);
-        startActivity(intent);
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 1: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    wifis.start(this);
+                    getWifis();
+                } else {
+                    Toast toast = Toast.makeText(this, "Permission is mandatory to play", Toast.LENGTH_LONG);
+                    toast.show();
+                    finish();
+                }
+                return;
+            }
+        }
     }
 
-    public void start(View view) {
 
+    public void abrirSelect() {
+
+        checkNetwork();
+        unregisterReceiver(wifis.receiverWifi);
+        seguir = false;
+        buscando = false;
+
+        final Intent intent = new Intent(this, Principal.class);
+
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //finish();
+                startActivity(intent);
+            }
+        }, 3000);
+    }
+
+    public void showAlert(int numAlert) {
+        AlertDialog.Builder builderSingle = new AlertDialog.Builder(Welcome.this);
+        builderSingle.setIcon(R.drawable.robot);
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(Welcome.this, android.R.layout.select_dialog_singlechoice);
+        if (numAlert == 0) {
+            builderSingle.setTitle("Select your Bot:");
+            for (int i = 0; i < names.size(); i++) {
+                //Log.i("----->", "Red " + i + ": " + names.get(i));
+                arrayAdapter.add(names.get(i));
+            }
+        }
+        if (numAlert == 1) {
+            builderSingle.setTitle("No wifi available");
+            builderSingle.setMessage("Make sure the robot is ON and try again");
+        }
+
+        builderSingle.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                salir();
+            }
+        });
+
+        if (numAlert == 0) {
+            builderSingle.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    String strName = arrayAdapter.getItem(which);
+                    AlertDialog.Builder builderInner = new AlertDialog.Builder(Welcome.this);
+                    builderInner.setMessage(strName);
+                    builderInner.setTitle("Connect to");
+                    builderInner.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    builderInner.show();
+
+                    networkName = strName;
+                    conectWifi();
+                }
+            });
+        }
+
+        if (numAlert == 1) {
+            builderSingle.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    salir();
+                }
+            });
+        }
+
+        builderSingle.show();
+    }
+
+    public void salir() {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                finish();
+            }
+        }, 200);
+    }
+
+    public void getWifis() {
+        buscando = true;
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            public void run() {
+
+                if (wifis.enviar) {
+                    names = wifis.getNetworks();
+
+
+                    Set<String> hs = new HashSet<>();
+                    hs.addAll(names);
+                    names.clear();
+                    names.addAll(hs);
+
+                    if (names.size() == 0) {
+                        Log.i("----->", "No networks available");
+                        showAlert(1);
+                        seguir = false;
+                        //finish();
+
+
+                    } else {
+                        if (names.size() == 1) {
+                            networkName = names.get(0);
+                            conectWifi();
+
+                            Toast toast = Toast.makeText(Welcome.this, "Connected to " + networkName, Toast.LENGTH_SHORT);
+                            toast.show();
+
+                        } else {
+                            showAlert(0);
+                            seguir = false;
+
+                        }
+
+                    }
+
+                }
+                if (seguir) {
+                    getWifis();
+                }
+            }
+        }, 500);
+    }
+
+
+    public void conectWifi() {
+        String networkSSID = networkName;
+
+        WifiConfiguration conf = new WifiConfiguration();
+        conf.SSID = "\"" + networkSSID + "\"";
+        conf.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+
+        WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        wifiManager.addNetwork(conf);
+
+        List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
+        for (WifiConfiguration i : list) {
+            if (i.SSID != null && i.SSID.equals("\"" + networkSSID + "\"")) {
+                wifiManager.disconnect();
+                wifiManager.enableNetwork(i.networkId, true);
+                wifiManager.reconnect();
+
+                break;
+            }
+        }
         abrirSelect();
 
-        URI uri = null;
-
-        try {
-            uri = new URI("ws://192.168.4.1:81");
-
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-        Map<String, String> headers = new HashMap<>();
-        mWebSocketClient = new WebSocketClient(uri, new Draft_17(), headers, 0) {
-
-            @Override
-            public void onOpen(ServerHandshake serverHandshake) {
-                Log.w("robota", "Websocket Opened");
-                // send message 'STOP/SLEEP' when open socket
-                sendMessage("S");
-                Button buttonConnect = (Button) findViewById(R.id.connect);
-                //buttonConnect.setText("Connected");
-                //buttonConnect.setHeight(0);
-                abrirSelect();
-            }
-
-            @Override
-            public void onMessage(final String onMsg) {
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.w("robota", "Message ON:" + onMsg);
-                        //JSON onMsg
-                        try {
-                            JSONObject client = new JSONObject(onMsg);
-                            if (client.has("idRobota")) {
-                                //TextView textView = (TextView) findViewById(R.id.id_content);
-                                //textView.setText(client.getString("idRobota"));
-                            }
-                            if (client.has("state")) {
-                                //TextView textView = (TextView) findViewById(R.id.state_content);
-                                //textView.setText(client.getString("state"));
-                            }
-                            if (client.has("mov")) {
-
-                            }
-                        } catch (JSONException e) {
-                            Log.e("robota", e.getMessage());
-                        }
-                    }
-                });
-            }
-
-            @Override
-            public void onClose(int i, String s, boolean b) {
-                Log.w("robota", "Closed " + s);
-            }
-
-            @Override
-            public void onError(Exception e) {
-                Log.w("robota", "Error " + e.getMessage());
-
-                alert();
-            }
-        };
-        mWebSocketClient.connect();
-SocketHandler.setSocket(mWebSocketClient);
-
-    }
-
-    public void alert(){
-        AlertDialog.Builder builder;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
-        } else {
-            builder = new AlertDialog.Builder(this);
-        }
-        builder.setTitle("Delete entry")
-                .setMessage("Are you sure you want to delete this entry?")
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        // continue with delete
-                    }
-                })
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .show();
     }
 
 
+    public void checkNetwork() {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                Context context = ((Globals) getApplication()).currentContext;
 
-    public boolean sendMessage(String sendMsg) {
-        JSONObject client = new JSONObject();
-        try {
-            client.put("commands", sendMsg);
-        } catch (JSONException e) {
-            Log.e("robota", e.getMessage());
-            return false;
-        }
-        // only send if object was created
-        if (null == mWebSocketClient)
-            return false;
-        else {
-            Log.w("robota", client.toString());
-            mWebSocketClient.send(client.toString());
-            return true;
-        }
+
+                if (wifis.isCurrentNetworkOK( context, networkName)) {
+                    checkNetwork();
+                    Log.i("----->","La red es correcta");
+                }
+                else{
+                    Log.i("----->","La red no es correcta");
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                            context);
+
+                    // set title
+                    alertDialogBuilder.setTitle("Wifi Disconected");
+
+                    // set dialog message
+                    alertDialogBuilder
+                            .setMessage("Restart GamesP when the robot can be played")
+                            .setCancelable(false)
+                            .setPositiveButton("Exit",new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog,int id) {
+                                    // if this button is clicked, close
+                                    // current activity
+                                    finishAndRemoveTask();
+                                }
+                            });
+
+                    AlertDialog alertDialog = alertDialogBuilder.create();
+
+                    alertDialog.show();
+
+
+                }
+            }
+        }, 4000);
     }
 
 }

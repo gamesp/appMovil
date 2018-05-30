@@ -14,8 +14,6 @@ public class unit1 extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_unit1);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
     }
 
@@ -27,14 +25,7 @@ public class unit1 extends AppCompatActivity {
             Intent intent = new Intent(this, unit1_1.class);
             startActivity(intent);
         }
-        if (num.equals("dos")) {
-            Intent intent = new Intent(this, unit1_2.class);
-            startActivity(intent);
-        }
-        if (num.equals("tres")) {
-            Intent intent = new Intent(this, unit1_3.class);
-            startActivity(intent);
-        }
+
     }
 
 }
